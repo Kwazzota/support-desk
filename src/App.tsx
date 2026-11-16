@@ -1,4 +1,6 @@
 import './App.css'
+import TicketList from "./features/tickets/TicketList.tsx";
+import {tickets} from "./features/tickets/fixtures.ts";
 
 function App() {
   return (
@@ -9,7 +11,7 @@ function App() {
         </header>
         <section>
           <h2>Заявки</h2>
-          <p>Заявок пока нет</p>
+          <TicketList ticket={tickets} />
         </section>
       </main>
   )

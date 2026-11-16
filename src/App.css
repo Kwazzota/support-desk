@@ -182,3 +182,17 @@
     border-right-color: var(--border);
   }
 }
+
+.ticket-list {
+  display: flex;
+  flex-direction: column;
+  row-gap: 16px;
+}
+
+.ticket-item {
+  display: flex;
+  flex-direction: row;
+  column-gap: 50px;
+  justify-content: space-between;
+  padding: 20px;
+}
