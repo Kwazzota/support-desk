@@ -8,11 +8,14 @@ type TicketFilter = TicketStatus | "all"
 
 function App() {
   const [filter, setFilter] = useState<TicketFilter>('all');
+  const [query, setQuery] = useState('');
 
-  const visibleTickets = filter === 'all'
-    ? tickets
-    : tickets.filter(ticket => ticket.status === filter)
+  const queryString = query.trim().toLowerCase();
 
+  const visibleTickets = tickets.filter(ticket =>
+      (filter === 'all' || ticket.status === filter) &&
+      ticket.title.toLowerCase().includes(queryString)
+  )
   return (
       <main>
         <header>
@@ -21,13 +24,18 @@ function App() {
         </header>
         <section>
           <h2>Заявки</h2>
+            <label htmlFor="ticket-search">Поиск по теме</label>
+            <input id="ticket-search" value={query} onInput={event => setQuery(event.currentTarget.value)} type="text" placeholder="Поиск по теме"/>
             <span className="filter">
                 <button className="filter-button" aria-pressed={filter === 'all'} onClick={() => setFilter('all')}>Все</button>
                 <button className="filter-button" aria-pressed={filter === 'new'} onClick={() => setFilter('new')}>Новые</button>
                 <button className="filter-button" aria-pressed={filter === 'in_progress'} onClick={() => setFilter('in_progress')}>В работе</button>
                 <button className="filter-button" aria-pressed={filter === 'closed'} onClick={() => setFilter('closed')}>Закрытые</button>
             </span>
-            <TicketList ticket={visibleTickets} />
+            {tickets.length > 0 && visibleTickets.length === 0
+                ? (<p>По заданным условиям заявок не найдено</p>)
+                : <TicketList ticket={visibleTickets} />
+            }
             <p>Показано {visibleTickets.length} из {tickets.length}</p>
         </section>
       </main>
