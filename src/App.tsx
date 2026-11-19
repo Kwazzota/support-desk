@@ -6,8 +6,19 @@ import { useState} from "react";
 
 type TicketFilter = TicketStatus | "all"
 
+function readTicketFilter(): TicketFilter {
+    const status = new URLSearchParams(window.location.search).get("status");
+
+    if (status === "new" || status === "closed" || status === "in_progress") {
+        return status
+    }
+    else {
+        return "all"
+    }
+}
+
 function App() {
-  const [filter, setFilter] = useState<TicketFilter>('all');
+  const [filter, setFilter] = useState<TicketFilter>(readTicketFilter);
   const [query, setQuery] = useState('');
 
   const queryString = query.trim().toLowerCase();
