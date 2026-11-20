@@ -27,6 +27,26 @@ function App() {
       (filter === 'all' || ticket.status === filter) &&
       ticket.title.toLowerCase().includes(queryString)
   )
+
+  function toggleURL(status: TicketFilter) {
+      const url = new URL(window.location.href)
+
+      if (status === "all") {
+          url.searchParams.delete("status");
+      }
+
+      else {
+          url.searchParams.set("status", status)
+      }
+
+      window.history.replaceState(window.history.state, '', url)
+  }
+
+  function toggleFilter(status: TicketFilter) {
+      setFilter(status);
+      toggleURL(status);
+  }
+
   return (
       <main>
         <header>
@@ -38,10 +58,40 @@ function App() {
             <label htmlFor="ticket-search">Поиск по теме</label>
             <input id="ticket-search" value={query} onInput={event => setQuery(event.currentTarget.value)} type="text" placeholder="Поиск по теме"/>
             <span className="filter">
-                <button className="filter-button" aria-pressed={filter === 'all'} onClick={() => setFilter('all')}>Все</button>
-                <button className="filter-button" aria-pressed={filter === 'new'} onClick={() => setFilter('new')}>Новые</button>
-                <button className="filter-button" aria-pressed={filter === 'in_progress'} onClick={() => setFilter('in_progress')}>В работе</button>
-                <button className="filter-button" aria-pressed={filter === 'closed'} onClick={() => setFilter('closed')}>Закрытые</button>
+                <button
+                    className="filter-button"
+                    aria-pressed={filter === 'all'}
+                    onClick={() => toggleFilter('all')}
+                >
+                    Все
+                </button>
+                <button
+                    className="filter-button"
+                    aria-pressed={filter === 'new'}
+                    onClick={() => {
+                        toggleFilter('new')
+                    }}
+                >
+                    Новые
+                </button>
+                <button
+                    className="filter-button"
+                    aria-pressed={filter === 'in_progress'}
+                    onClick={() => {
+                        toggleFilter('in_progress')
+                    }}
+                >
+                    В работе
+                </button>
+                <button
+                    className="filter-button"
+                    aria-pressed={filter === 'closed'}
+                    onClick={() => {
+                        toggleFilter('closed')
+                    }}
+                >
+                    Закрытые
+                </button>
             </span>
             {tickets.length > 0 && visibleTickets.length === 0
                 ? (<p>По заданным условиям заявок не найдено</p>)
