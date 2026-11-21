@@ -17,9 +17,21 @@ function readTicketFilter(): TicketFilter {
     }
 }
 
+function readQ() {
+    const q = new URLSearchParams(window.location.search).get("q")
+
+    if (!q) {
+        return ""
+    }
+
+    else {
+        return q
+    }
+}
+
 function App() {
   const [filter, setFilter] = useState<TicketFilter>(readTicketFilter);
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState(readQ);
 
   const queryString = query.trim().toLowerCase();
 
@@ -28,7 +40,9 @@ function App() {
       ticket.title.toLowerCase().includes(queryString)
   )
 
-  function toggleURL(status: TicketFilter) {
+  function toggleFilter(status: TicketFilter) {
+      setFilter(status);
+
       const url = new URL(window.location.href)
 
       if (status === "all") {
@@ -42,11 +56,19 @@ function App() {
       window.history.replaceState(window.history.state, '', url)
   }
 
-  function toggleFilter(status: TicketFilter) {
-      setFilter(status);
-      toggleURL(status);
-  }
+  function toggleSearch(q: string) {
+      setQuery(q)
 
+      const qry = new URL(window.location.href)
+
+      if (q === "") {
+          qry.searchParams.delete("q")
+      } else {
+          qry.searchParams.set("q", q)
+      }
+
+      window.history.replaceState(window.history.state, '', qry)
+  }
   return (
       <main>
         <header>
@@ -56,7 +78,15 @@ function App() {
         <section>
           <h2>Заявки</h2>
             <label htmlFor="ticket-search">Поиск по теме</label>
-            <input id="ticket-search" value={query} onInput={event => setQuery(event.currentTarget.value)} type="text" placeholder="Поиск по теме"/>
+            <input
+                id="ticket-search"
+                value={query}
+                onInput={
+                    event => {
+                        toggleSearch(event.currentTarget.value)
+                    }
+                }
+                type="text" placeholder="Поиск по теме"/>
             <span className="filter">
                 <button
                     className="filter-button"
