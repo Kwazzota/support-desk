@@ -1,8 +1,9 @@
 import './App.css';
 import TicketList from "./features/tickets/TicketList.tsx";
-import {tickets} from "./features/tickets/fixtures.ts";
+import fetchTickets from "./features/tickets/api.ts";
 import type { TicketStatus} from "./features/tickets/types.ts";
-import { useState} from "react";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 type TicketFilter = TicketStatus | "all"
 
@@ -32,13 +33,38 @@ function readQ() {
 function App() {
   const [filter, setFilter] = useState<TicketFilter>(readTicketFilter);
   const [query, setQuery] = useState(readQ);
+  const ticketsQuery = useQuery({
+      queryKey: ["tickets"],
+      queryFn: fetchTickets,
+  })
 
   const queryString = query.trim().toLowerCase();
 
-  const visibleTickets = tickets.filter(ticket =>
-      (filter === 'all' || ticket.status === filter) &&
-      ticket.title.toLowerCase().includes(queryString)
-  )
+  let listContent = null
+
+  if (ticketsQuery.isPending) {
+      listContent = <p>Загружаем заявки...</p>
+  }
+
+  else if (ticketsQuery.isError) {
+      listContent = <p>Не удалось загрузить заявки</p>
+  }
+
+  else {
+      const visibleTickets = ticketsQuery.data.filter(ticket =>
+          (filter === 'all' || ticket.status === filter) &&
+          ticket.title.toLowerCase().includes(queryString)
+      )
+
+      listContent =
+          <>
+              {ticketsQuery.data.length > 0 && visibleTickets.length === 0
+                  ? (<p>По заданным условиям заявок не найдено</p>)
+                  : <TicketList ticket={visibleTickets} />
+              }
+              <p>Показано {visibleTickets.length} из {ticketsQuery.data.length}</p>
+          </>
+  }
 
   function toggleFilter(status: TicketFilter) {
       setFilter(status);
@@ -123,12 +149,8 @@ function App() {
                     Закрытые
                 </button>
             </span>
-            {tickets.length > 0 && visibleTickets.length === 0
-                ? (<p>По заданным условиям заявок не найдено</p>)
-                : <TicketList ticket={visibleTickets} />
-            }
-            <p>Показано {visibleTickets.length} из {tickets.length}</p>
-        </section>
+            {listContent}
+            </section>
       </main>
   )
 }
