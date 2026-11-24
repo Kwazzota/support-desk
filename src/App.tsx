@@ -46,7 +46,7 @@ function App() {
       listContent = <p>Загружаем заявки...</p>
   }
 
-  else if (ticketsQuery.isError) {
+  else if (ticketsQuery.isLoadingError) {
       listContent = <p>Не удалось загрузить заявки</p>
   }
 
@@ -58,6 +58,7 @@ function App() {
 
       listContent =
           <>
+            {ticketsQuery.isRefetchError && (<p>Не удалось обновить заявки. Показаны последние загруженные данные</p>)}
               {ticketsQuery.data.length > 0 && visibleTickets.length === 0
                   ? (<p>По заданным условиям заявок не найдено</p>)
                   : <TicketList ticket={visibleTickets} />
@@ -147,6 +148,13 @@ function App() {
                     }}
                 >
                     Закрытые
+                </button>
+                <button
+                    disabled={ticketsQuery.isFetching}
+                    onClick={() =>
+                        ticketsQuery.refetch()}
+                >
+                    {ticketsQuery.isRefetching ? "Обновляем..." : "Обновить заявки"}
                 </button>
             </span>
             {listContent}
