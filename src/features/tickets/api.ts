@@ -19,22 +19,26 @@ function isTicket(ticket: unknown):ticket is Ticket {
     }
 }
 
+export function parseTickets(Json: unknown): Ticket[] {
+    if (Array.isArray(Json)) {
+        if (!Json.every(isTicket)) {
+            throw new Error("Not all values are tickets")
+        }
+        else {
+            return Json
+        }
+    }
+    else {
+        throw new Error("Value is not Array")
+    }
+}
+
 async function fetchTickets(): Promise<Ticket[]> {
     const response = await fetch('/tickets.json')
 
     if (response.ok) {
         const Json: unknown = await response.json()
-        if (Array.isArray(Json)) {
-            if (!Json.every(isTicket)) {
-                throw new Error("Not all values are tickets")
-            }
-            else {
-                return Json
-            }
-        }
-        else {
-            throw new Error("Value is not Array")
-        }
+        return parseTickets(Json)
     } else {
         throw new Error(response.statusText)
     }
